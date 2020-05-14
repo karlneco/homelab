@@ -1,0 +1,30 @@
+---
+- hosts: k8s-workers
+  become: true
+
+  tasks:
+          - name: Add ansible Group
+            group:
+                    name: ansible
+                    state: present
+
+          - name: Add ansible User
+            user:
+                    name: ansible
+                    password: "{{ 'password' | password_hash('sha512') }}"
+                    update_password: on_create
+                    groups: ansible
+                    comment: "Ansible user"
+                    create_home: yes
+
+          - name: Create SSH Folders
+            file:
+                    path: /home/ansible/.ssh
+                    owner: ansible
+                    state: directory
+
+          - name: Create Authorised Keys File
+            file:
+                    path: "/home/ansible/.ssh/Authorized_Keys"
+                    state: touch
+                    owner: ansible
